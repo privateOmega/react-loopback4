@@ -8,6 +8,9 @@ import {RepositoryMixin} from '@loopback/repository';
 import {RestApplication} from '@loopback/rest';
 import {ServiceMixin} from '@loopback/service-proxy';
 import * as path from 'path';
+import * as dotenv from 'dotenv';
+import * as dotenvExt from 'dotenv-extended';
+
 import {MySequence} from './sequence';
 
 export class BackendApplication extends BootMixin(
@@ -38,5 +41,11 @@ export class BackendApplication extends BootMixin(
         nested: true,
       },
     };
+
+    dotenv.config();
+    dotenvExt.load({
+      schema: '.env.example',
+      errorOnMissing: false,
+    });
   }
 }
