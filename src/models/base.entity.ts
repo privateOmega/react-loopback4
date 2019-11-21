@@ -1,21 +1,30 @@
 import {Entity, property} from '@loopback/repository';
+import {v4 as uuid} from 'uuid';
 
 export abstract class BaseEntity extends Entity {
   @property({
+    name: 'id',
+    type: 'string',
+    default: () => uuid(),
+  })
+  id: string;
+
+  @property({
+    name: 'created_on',
     type: 'date',
     default: () => new Date(),
-    name: 'created_on',
   })
   createdOn?: Date;
 
   @property({
+    name: 'modified_on',
     type: 'date',
     default: () => new Date(),
-    name: 'modified_on',
   })
   modifiedOn?: Date;
 
   @property({
+    name: 'deleted',
     type: 'boolean',
     default: false,
   })
