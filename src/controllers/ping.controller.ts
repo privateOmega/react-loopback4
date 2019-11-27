@@ -1,5 +1,8 @@
 import {Request, RestBindings, get, ResponseObject} from '@loopback/rest';
 import {inject} from '@loopback/context';
+import {authenticate} from '@loopback/authentication';
+import {SecurityBindings, UserProfile} from '@loopback/security';
+import {OPERATION_SECURITY_SPEC} from '../utils';
 
 /**
  * OpenAPI response for ping()
@@ -35,11 +38,16 @@ export class PingController {
 
   // Map to `GET /ping`
   @get('/ping', {
+    security: OPERATION_SECURITY_SPEC,
     responses: {
       '200': PING_RESPONSE,
     },
   })
-  ping(): object {
+  @authenticate('jwt')
+  ping(
+    @inject(SecurityBindings.USER)
+    currentUserProfile: UserProfile,
+  ): object {
     // Reply with a greeting, the current time, the url, and request headers
     return {
       greeting: 'Hello from LoopBack',
