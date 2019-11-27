@@ -6,6 +6,7 @@ export abstract class BaseEntity extends Entity {
     name: 'id',
     type: 'string',
     default: () => uuid(),
+    id: true,
   })
   id: string;
 
