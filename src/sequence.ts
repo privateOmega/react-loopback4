@@ -8,6 +8,7 @@ import {
   RestBindings,
   Send,
   SequenceHandler,
+  HttpErrors,
 } from '@loopback/rest';
 import {
   AuthenticationBindings,
@@ -15,6 +16,13 @@ import {
   AUTHENTICATION_STRATEGY_NOT_FOUND,
   USER_PROFILE_NOT_FOUND,
 } from '@loopback/authentication';
+
+import {
+  AuthorizationBindings,
+  AuthorizeFn,
+  UserPermissionsFn,
+  Permission,
+} from './authorization';
 
 const SequenceActions = RestBindings.SequenceActions;
 
@@ -27,6 +35,10 @@ export class MySequence implements SequenceHandler {
     @inject(SequenceActions.REJECT) public reject: Reject,
     @inject(AuthenticationBindings.AUTH_ACTION)
     protected authenticateRequest: AuthenticateFn,
+    @inject(AuthorizationBindings.USER_PERMISSIONS)
+    protected fetchUserPermissions: UserPermissionsFn,
+    @inject(AuthorizationBindings.AUTHORIZE_ACTION)
+    protected checkAuthorization: AuthorizeFn,
   ) {}
 
   async handle(context: RequestContext) {
@@ -34,7 +46,22 @@ export class MySequence implements SequenceHandler {
       const {request, response} = context;
       const route = this.findRoute(request);
 
-      await this.authenticateRequest(request);
+      const authenticatedUser = await this.authenticateRequest(request);
+
+      if (authenticatedUser) {
+        const permissions: string[] = this.fetchUserPermissions(
+          authenticatedUser,
+        );
+
+        const isAccessAllowed: boolean = await this.checkAuthorization(
+          permissions,
+        );
+
+        if (!isAccessAllowed) {
+          throw new HttpErrors.Forbidden('Not Allowed Access');
+        }
+      }
+
       // After successful authentication
       const args = await this.parseParams(request, route);
       const result = await this.invoke(route, args);
