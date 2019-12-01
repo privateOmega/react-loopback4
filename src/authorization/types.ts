@@ -24,3 +24,15 @@ export interface AuthorizationMetadata {
   // User need to have at least one of these to access the API method.
   permissions: string[];
 }
+
+/**
+ * User permissions manipulation method interface.
+ *
+ * This is where we can add our business logic to read and
+ * union permissions associated to user via role with
+ * those associated directly to the user.
+ *
+ */
+export interface UserPermissionsFn {
+  (userProfile: UserProfile): string[];
+}
