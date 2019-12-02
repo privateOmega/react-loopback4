@@ -2,8 +2,24 @@ import {Provider} from '@loopback/context';
 import {UserProfile} from '@loopback/security';
 import {repository} from '@loopback/repository';
 
-import {UserPermissionsFn} from '../types';
+import {UserPermissionsFn, Permission} from '../types';
 import {UserRoleRepository, PermissionRepository} from '../../repositories';
+
+function merge(rolePermissions: Permission[], userPermissions: Permission[]) {
+  if (!rolePermissions) {
+    return userPermissions;
+  } else if (!userPermissions) {
+    return rolePermissions;
+  }
+  const reduced = rolePermissions.filter(
+    rolePermissionObject =>
+      !userPermissions.find(
+        userPermissionObject =>
+          rolePermissionObject['property'] === userPermissionObject['property'],
+      ),
+  );
+  return reduced.concat(userPermissions);
+}
 
 export class UserPermissionsProvider implements Provider<UserPermissionsFn> {
   constructor(
@@ -13,21 +29,20 @@ export class UserPermissionsProvider implements Provider<UserPermissionsFn> {
     private permissionRepository: PermissionRepository,
   ) {}
 
-  value(): Promise<UserPermissionsFn> {
-    return async userProfile => {
-      return this.action(
+  async value(): Promise<UserPermissionsFn> {
+    return async userProfile =>
+      this.action(
         userProfile,
         this.userRoleRepository,
         this.permissionRepository,
       );
-    };
   }
-  II;
+
   async action(
     userProfile: UserProfile,
     userRoleRepository: UserRoleRepository,
     permissionRepository: PermissionRepository,
-  ): Promise<string[]> {
+  ) {
     const userRoles = await userRoleRepository.find({
       where: {
         userId: userProfile.id,
@@ -42,6 +57,10 @@ export class UserPermissionsProvider implements Provider<UserPermissionsFn> {
           inq: roleIds,
         },
       },
+      fields: {
+        property: true,
+        permission: true,
+      },
     });
 
     const userPermissions = await permissionRepository.find({
@@ -49,11 +68,13 @@ export class UserPermissionsProvider implements Provider<UserPermissionsFn> {
         principalType: 'USER',
         principalId: userProfile.id,
       },
+      fields: {
+        property: true,
+        permission: true,
+      },
     });
 
-    // TODO: Find Logic to allow/deny based on its priority
-
-    const permissions: string[] = [];
+    const permissions: Permission[] = merge(rolePermissions, userPermissions);
 
     return permissions;
   }

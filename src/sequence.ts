@@ -49,7 +49,7 @@ export class MySequence implements SequenceHandler {
       const authenticatedUser = await this.authenticateRequest(request);
 
       if (authenticatedUser) {
-        const permissions: string[] = this.fetchUserPermissions(
+        const permissions: Permission[] = await this.fetchUserPermissions(
           authenticatedUser,
         );
 

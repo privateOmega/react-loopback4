@@ -13,7 +13,7 @@ export interface Permission {
  * Authorize action method interface
  */
 export interface AuthorizeFn {
-  (userPermissions: string[]): Promise<boolean>;
+  (userPermissions: Permission[]): Promise<boolean>;
 }
 
 /**
@@ -34,5 +34,5 @@ export interface AuthorizationMetadata {
  *
  */
 export interface UserPermissionsFn {
-  (userProfile: UserProfile): string[];
+  (userProfile: UserProfile): Promise<Permission[]>;
 }

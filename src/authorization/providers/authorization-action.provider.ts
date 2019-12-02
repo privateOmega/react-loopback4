@@ -1,7 +1,7 @@
 import {Getter, inject, Provider} from '@loopback/context';
 
 import {AuthorizationBindings} from '../keys';
-import {AuthorizationMetadata, AuthorizeFn} from '../types';
+import {AuthorizationMetadata, AuthorizeFn, Permission} from '../types';
 
 export class AuthorizeActionProvider implements Provider<AuthorizeFn> {
   constructor(
@@ -13,7 +13,7 @@ export class AuthorizeActionProvider implements Provider<AuthorizeFn> {
     return response => this.action(response);
   }
 
-  async action(userPermissions: string[]): Promise<boolean> {
+  async action(userPermissions: Permission[]): Promise<boolean> {
     const metadata: AuthorizationMetadata = await this.getMetadata();
 
     if (!metadata) {
@@ -24,11 +24,19 @@ export class AuthorizeActionProvider implements Provider<AuthorizeFn> {
       return true;
     }
 
-    const neededPermissions = metadata.permissions;
+    const neededPermissions = [...new Set(metadata.permissions)];
+
     return (
-      [...new Set(neededPermissions)].filter(element =>
-        new Set(userPermissions).has(element),
-      ).length > 0
+      userPermissions
+        .map(userPermission => {
+          if (
+            userPermission.permission === 'ALLOWED' &&
+            neededPermissions.includes(userPermission.property)
+          ) {
+            return userPermission;
+          }
+        })
+        .filter(permission => permission).length > 0
     );
   }
 }
