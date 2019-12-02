@@ -30,7 +30,7 @@ export class AuthorizeActionProvider implements Provider<AuthorizeFn> {
       userPermissions
         .map(userPermission => {
           if (
-            userPermission.permission === 'ALLOWED' &&
+            userPermission.permission === 'ALLOW' &&
             neededPermissions.includes(userPermission.property)
           ) {
             return userPermission;
