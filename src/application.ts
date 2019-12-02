@@ -25,6 +25,7 @@ import {
 } from './keys';
 import {JWTService, BcryptHasher, CustomUserService} from './services';
 import {SECURITY_SCHEME_SPEC} from './utils';
+import {AuthorizationComponent} from './authorization';
 
 export interface PackageInfo {
   name: string;
@@ -75,6 +76,8 @@ export class BackendApplication extends BootMixin(
     this.component(RestExplorerComponent);
 
     this.component(AuthenticationComponent);
+
+    this.component(AuthorizationComponent);
 
     this.projectRoot = __dirname;
     // Customize @loopback/boot Booter Conventions here

@@ -3,27 +3,19 @@ import {inject} from '@loopback/context';
 import {authenticate} from '@loopback/authentication';
 import {SecurityBindings, UserProfile} from '@loopback/security';
 import {OPERATION_SECURITY_SPEC} from '../utils';
+import {authorize} from '../authorization';
 
 /**
- * OpenAPI response for ping()
+ * OpenAPI response
  */
-const PING_RESPONSE: ResponseObject = {
-  description: 'Ping Response',
+const RESPONSE: ResponseObject = {
+  description: 'Response',
   content: {
     'application/json': {
       schema: {
         type: 'object',
         properties: {
-          greeting: {type: 'string'},
-          date: {type: 'string'},
-          url: {type: 'string'},
-          headers: {
-            type: 'object',
-            properties: {
-              'Content-Type': {type: 'string'},
-            },
-            additionalProperties: true,
-          },
+          message: {type: 'string'},
         },
       },
     },
@@ -40,20 +32,35 @@ export class PingController {
   @get('/ping', {
     security: OPERATION_SECURITY_SPEC,
     responses: {
-      '200': PING_RESPONSE,
+      '200': RESPONSE,
     },
   })
   @authenticate('jwt')
+  @authorize(['ping'])
   ping(
     @inject(SecurityBindings.USER)
     currentUserProfile: UserProfile,
   ): object {
-    // Reply with a greeting, the current time, the url, and request headers
     return {
-      greeting: 'Hello from LoopBack',
-      date: new Date(),
-      url: this.req.url,
-      headers: Object.assign({}, this.req.headers),
+      message: 'ping',
+    };
+  }
+
+  // Map to `GET /pong`
+  @get('/pong', {
+    security: OPERATION_SECURITY_SPEC,
+    responses: {
+      '200': RESPONSE,
+    },
+  })
+  @authenticate('jwt')
+  @authorize(['*'])
+  pong(
+    @inject(SecurityBindings.USER)
+    currentUserProfile: UserProfile,
+  ): object {
+    return {
+      message: 'pong',
     };
   }
 }
