@@ -14,10 +14,10 @@ type PrivateRouteProps = {
 const PrivateRoute = (props: PrivateRouteProps) => {
   const authData = useAuthDataContext();
 
-  if (authData && authData.user) {
+  if (authData && authData.user && Object.entries(authData.user).length !== 0) {
     return <RouteWithLayout {...props} />;
   } else {
-    return <Redirect to="/not-found" />;
+    return <Redirect to="/login" />;
   }
 };
 

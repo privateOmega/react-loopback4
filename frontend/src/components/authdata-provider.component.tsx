@@ -22,7 +22,8 @@ const AuthDataProvider: React.FC = props => {
   const [authData, setAuthData] = useState(initialAuthData);
 
   useEffect(() => {
-    const currentAuthData = JSON.parse(localStorage.getItem('user') || '{}');
+    const localAuthData = localStorage.getItem('user');
+    const currentAuthData = localAuthData ? JSON.parse(localAuthData) : null;
     if (currentAuthData) {
       setAuthData(currentAuthData);
     }

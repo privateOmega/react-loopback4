@@ -1,19 +1,29 @@
 import React from 'react';
 import {Row, Col, Icon} from 'antd';
-import {Formik} from 'formik';
+import {Formik, FormikHelpers} from 'formik';
 import {Form, Input, SubmitButton, FormItem} from 'formik-antd';
 import {Link} from 'react-router-dom';
 
 import './login.css';
-import {schemas} from '../../utils';
+import {schemas, constants} from '../../utils';
+import {authenticationServices} from '../../services';
 
 interface FormValues {
   email: string;
   password: string;
 }
 
-function handleSubmit(values: FormValues) {
-  console.log(values);
+async function handleSubmit(
+  {email, password}: FormValues,
+  {setStatus}: FormikHelpers<FormValues>,
+) {
+  setStatus(null);
+  try {
+    await authenticationServices.login(email, password);
+    setStatus({success: constants.LOGIN_SUCCESS_MESSAGE});
+  } catch (error) {
+    setStatus({error: error});
+  }
 }
 
 const Login: React.FC = props => {
@@ -25,8 +35,11 @@ const Login: React.FC = props => {
             email: '',
             password: '',
           }}
+          enableReinitialize={true}
           validationSchema={schemas.LoginSchema}
-          render={() => (
+          onSubmit={handleSubmit}
+        >
+          {({isSubmitting}) => (
             <Form className="login-form">
               <FormItem name="email">
                 <Input
@@ -50,7 +63,11 @@ const Login: React.FC = props => {
                 <Link to="/forgot" className="login-form-forgot">
                   Forgot Password
                 </Link>
-                <SubmitButton type="primary" className="login-form-button">
+                <SubmitButton
+                  type="primary"
+                  className="login-form-button"
+                  disabled={isSubmitting}
+                >
                   Login
                 </SubmitButton>
                 {'Or '}
@@ -58,8 +75,7 @@ const Login: React.FC = props => {
               </FormItem>
             </Form>
           )}
-          onSubmit={handleSubmit}
-        />
+        </Formik>
       </Col>
     </Row>
   );
