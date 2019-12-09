@@ -7,6 +7,7 @@ import {Link} from 'react-router-dom';
 import './login.css';
 import {schemas, constants} from '../../utils';
 import {authenticationServices} from '../../services';
+import {PopupModal} from '../../components';
 
 interface FormValues {
   email: string;
@@ -23,6 +24,12 @@ async function handleSubmit(
     setStatus({success: constants.LOGIN_SUCCESS_MESSAGE});
   } catch (error) {
     setStatus({error: error});
+    PopupModal({
+      titleText: constants.LOGIN_FAILURE_TITLE,
+      text: constants.LOGIN_FAILURE_MESSAGE,
+      icon: constants.POPUP_TYPE.ERROR,
+      timer: constants.POPUP_CLOSE_TIME,
+    });
   }
 }
 
