@@ -14,26 +14,26 @@ interface FormValues {
   password: string;
 }
 
-async function handleSubmit(
-  {email, password}: FormValues,
-  {setStatus}: FormikHelpers<FormValues>,
-) {
-  setStatus(null);
-  try {
-    await authenticationServices.login(email, password);
-    setStatus({success: constants.LOGIN_SUCCESS_MESSAGE});
-  } catch (error) {
-    setStatus({error: error});
-    PopupModal({
-      titleText: constants.LOGIN_FAILURE_TITLE,
-      text: constants.LOGIN_FAILURE_MESSAGE,
-      icon: constants.POPUP_TYPE.ERROR,
-      timer: constants.POPUP_CLOSE_TIME,
-    });
-  }
-}
-
 const Login: React.FC = props => {
+  async function handleSubmit(
+    {email, password}: FormValues,
+    {setStatus}: FormikHelpers<FormValues>,
+  ) {
+    setStatus(null);
+    try {
+      await authenticationServices.login(email, password);
+      setStatus({success: constants.LOGIN_SUCCESS_MESSAGE});
+    } catch (error) {
+      setStatus({error: error});
+      PopupModal({
+        titleText: constants.LOGIN_FAILURE_TITLE,
+        text: constants.LOGIN_FAILURE_MESSAGE,
+        icon: constants.POPUP_TYPE.ERROR,
+        timer: constants.POPUP_CLOSE_TIME,
+      });
+    }
+  }
+
   return (
     <Row align="middle" justify="space-around" type="flex">
       <Col span={16}>

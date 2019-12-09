@@ -11,11 +11,11 @@ interface FormValues {
   email: string;
 }
 
-function handleSubmit(values: FormValues) {
-  console.log(values);
-}
-
 const Forgot: React.FC = props => {
+  function handleSubmit(values: FormValues) {
+    console.log(values);
+  }
+
   return (
     <Row align="middle" justify="space-around" type="flex">
       <Col span={16}>
