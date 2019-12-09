@@ -33,3 +33,8 @@ export const LOGIN_SUCCESS_TITLE = 'Login Successful';
 export const LOGIN_SUCCESS_MESSAGE = 'User login successful';
 export const LOGIN_FAILURE_TITLE = 'Login Failure';
 export const LOGIN_FAILURE_MESSAGE = 'User login failed';
+// Register
+export const REGISTRATION_SUCCESS_TITLE = 'Registration Successful';
+export const REGISTRATION_SUCCESS_MESSAGE = 'User registration successful';
+export const REGISTRATION_FAILURE_TITLE = 'Registration Failure';
+export const REGISTRATION_FAILURE_MESSAGE = 'User registration failed';

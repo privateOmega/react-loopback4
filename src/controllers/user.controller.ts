@@ -53,7 +53,7 @@ export class UserController {
       content: {
         'application/json': {
           schema: getModelSchemaRef(User, {
-            exclude: ['id'],
+            exclude: ['id', 'emailVerified'],
           }),
         },
       },
@@ -63,6 +63,9 @@ export class UserController {
     if (!isEmail.validate(user.email)) {
       throw new HttpErrors.UnprocessableEntity('Invalid Email');
     }
+    if (await this.userRepository.exists(user.email)) {
+      throw new HttpErrors.UnprocessableEntity('Email already exists');
+    }
     if (user.password.length < 8) {
       throw new HttpErrors.UnprocessableEntity(
         'Password must be minimum 8 characters',
@@ -71,6 +74,9 @@ export class UserController {
 
     // eslint-disable-next-line require-atomic-updates
     user.password = await this.passwordHasher.hashPassword(user.password);
+
+    // eslint-disable-next-line require-atomic-updates
+    user.emailVerified = false;
     try {
       const userResponse = await this.userRepository.create(user);
       delete userResponse.password;

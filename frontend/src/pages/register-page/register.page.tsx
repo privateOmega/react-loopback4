@@ -1,25 +1,51 @@
 import React from 'react';
 import {Row, Col, Icon} from 'antd';
-import {Formik} from 'formik';
+import {Formik, FormikHelpers} from 'formik';
 import {Form, Input, SubmitButton, FormItem} from 'formik-antd';
-import {Link} from 'react-router-dom';
+import {Link, withRouter, RouteComponentProps} from 'react-router-dom';
 
 import './register.css';
-import {schemas} from '../../utils';
+import {schemas, constants} from '../../utils';
+import {authenticationServices} from '../../services';
+import {PopupModal} from '../../components';
 
 interface FormValues {
   firstName: string;
   lastName: string;
+  username: string;
   email: string;
   password: string;
   confirmPassword: string;
 }
 
-function handleSubmit(values: FormValues) {
-  console.log(values);
-}
+const Register = (props: RouteComponentProps) => {
+  async function handleSubmit(
+    values: FormValues,
+    {setStatus}: FormikHelpers<FormValues>,
+  ) {
+    setStatus(null);
+    try {
+      const {confirmPassword, ...valuesWithoutConfirmPassword} = values;
+      await authenticationServices.register(valuesWithoutConfirmPassword);
+      setStatus({success: constants.REGISTRATION_SUCCESS_MESSAGE});
+      PopupModal({
+        titleText: constants.REGISTRATION_SUCCESS_TITLE,
+        text: constants.REGISTRATION_SUCCESS_MESSAGE,
+        icon: constants.POPUP_TYPE.SUCCESS,
+        timer: constants.POPUP_CLOSE_TIME,
+      });
+      props.history.push('/login');
+    } catch (error) {
+      setStatus({error: error});
+      PopupModal({
+        titleText: constants.REGISTRATION_FAILURE_TITLE,
+        text: constants.REGISTRATION_FAILURE_MESSAGE,
+        icon: constants.POPUP_TYPE.ERROR,
+        timer: constants.POPUP_CLOSE_TIME,
+      });
+    }
+  }
 
-const Register: React.FC = props => {
   return (
     <Row align="middle" justify="space-around" type="flex">
       <Col span={16}>
@@ -27,6 +53,7 @@ const Register: React.FC = props => {
           initialValues={{
             firstName: '',
             lastName: '',
+            username: '',
             email: '',
             password: '',
             confirmPassword: '',
@@ -43,7 +70,6 @@ const Register: React.FC = props => {
                   placeholder="first name"
                 />
               </FormItem>
-
               <FormItem name="lastName">
                 <Input
                   name="lastName"
@@ -53,7 +79,15 @@ const Register: React.FC = props => {
                   placeholder="last name"
                 />
               </FormItem>
-
+              <FormItem name="username">
+                <Input
+                  name="username"
+                  prefix={
+                    <Icon type="user" style={{color: 'rgba(0,0,0,.25)'}} />
+                  }
+                  placeholder="username"
+                />
+              </FormItem>
               <FormItem name="email">
                 <Input
                   name="email"
@@ -97,4 +131,4 @@ const Register: React.FC = props => {
   );
 };
 
-export default Register;
+export default withRouter(Register);
