@@ -6,9 +6,17 @@ import React, {
   useContext,
 } from 'react';
 
+export interface UserInterface {
+  id?: string;
+  name?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+}
+
 interface AuthDataContextInterface {
-  user: object;
-  onLogin: (newAuthData: object) => void;
+  user: UserInterface;
+  onLogin: (newAuthData: UserInterface) => void;
   onLogout: () => void;
 }
 
@@ -31,7 +39,7 @@ const AuthDataProvider: React.FC = props => {
 
   const onLogout = () => setAuthData(initialAuthData);
 
-  const onLogin = (newAuthData: object) => setAuthData(newAuthData);
+  const onLogin = (newAuthData: UserInterface) => setAuthData(newAuthData);
 
   const authDataValue: AuthDataContextInterface = useMemo(
     () => ({user: authData, onLogin, onLogout}),
@@ -41,6 +49,7 @@ const AuthDataProvider: React.FC = props => {
   return <AuthDataContext.Provider value={authDataValue} {...props} />;
 };
 
-export const useAuthDataContext = () => useContext(AuthDataContext);
+export const useAuthDataContext = () =>
+  useContext(AuthDataContext as React.Context<AuthDataContextInterface>);
 
 export default AuthDataProvider;
