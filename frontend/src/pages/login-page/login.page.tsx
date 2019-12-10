@@ -2,27 +2,32 @@ import React from 'react';
 import {Row, Col, Icon} from 'antd';
 import {Formik, FormikHelpers} from 'formik';
 import {Form, Input, SubmitButton, FormItem} from 'formik-antd';
-import {Link} from 'react-router-dom';
+import {Link, RouteComponentProps, withRouter} from 'react-router-dom';
 
 import './login.css';
 import {schemas, constants} from '../../utils';
 import {authenticationServices} from '../../services';
 import {PopupModal} from '../../components';
+import {useAuthDataContext} from '../../components/authdata-provider.component';
 
 interface FormValues {
   email: string;
   password: string;
 }
 
-const Login: React.FC = props => {
+const Login = (props: RouteComponentProps) => {
+  const {onLogin} = useAuthDataContext();
+
   async function handleSubmit(
     {email, password}: FormValues,
     {setStatus}: FormikHelpers<FormValues>,
   ) {
     setStatus(null);
     try {
-      await authenticationServices.login(email, password);
+      const user = await authenticationServices.login(email, password);
+      onLogin(user);
       setStatus({success: constants.LOGIN_SUCCESS_MESSAGE});
+      props.history.push('/dashboard');
     } catch (error) {
       setStatus({error: error});
       PopupModal({
@@ -88,4 +93,4 @@ const Login: React.FC = props => {
   );
 };
 
-export default Login;
+export default withRouter(Login);
